@@ -8,13 +8,12 @@ export const Column = ({ column, tasks, index }) => {
     <Draggable draggableId={column.id} index={index}>
       {(provided) => (
         <div
+          {...provided.dragHandleProps}
           {...provided.draggableProps}
           ref={provided.innerRef}
           className={styles.column}
         >
-          <div {...provided.dragHandleProps} className={styles.column__title}>
-            {column.title}
-          </div>
+          <div className={styles.column__title}>{column.title}</div>
           <Droppable droppableId={column.id} type="task">
             {(provided) => (
               <div

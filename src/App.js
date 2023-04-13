@@ -17,86 +17,86 @@ function App() {
     )
       return;
 
-    if (type === "column") {
-      let newColumns = Array.from(state.columns);
-      let orderedColumn = { ...newColumns[source.index] };
-      newColumns.splice(source.index, 1);
-      newColumns.splice(destination.index, 0, orderedColumn);
+    if (type === "section") {
+      let newSections = Array.from(state.sections);
+      let orderedSection = { ...newSections[source.index] };
+      newSections.splice(source.index, 1);
+      newSections.splice(destination.index, 0, orderedSection);
       setState({
         ...state,
-        columns: newColumns,
+        sections: newSections,
       });
       return;
     }
 
-    const start = state.columns.find((item) => item.id === source.droppableId);
-    const finish = state.columns.find(
+    const start = state.sections.find((item) => item.id === source.droppableId);
+    const finish = state.sections.find(
       (item) => item.id === destination.droppableId
     );
 
     if (start === finish) {
-      const newTasks = Array.from(start.tasks);
-      const orderedTask = { ...newTasks[source.index] };
-      newTasks.splice(source.index, 1);
-      newTasks.splice(destination.index, 0, orderedTask);
+      const newItems = Array.from(start.items);
+      const orderedItem = { ...newItems[source.index] };
+      newItems.splice(source.index, 1);
+      newItems.splice(destination.index, 0, orderedItem);
 
-      const newColumn = {
+      const newSection = {
         ...start,
-        tasks: newTasks,
+        items: newItems,
       };
 
-      const columnIndex = state.columns.findIndex(
+      const sectionIndex = state.sections.findIndex(
         (item) => item.id === start.id
       );
 
-      let newColumns = [...state.columns];
-      newColumns[columnIndex] = newColumn;
+      let newSections = [...state.sections];
+      newSections[sectionIndex] = newSection;
 
       setState({
         ...state,
-        columns: newColumns,
+        sections: newSections,
       });
 
       return;
     }
 
-    let startTasks = Array.from(start.tasks);
-    let orderedTask = { ...startTasks[source.index] };
-    startTasks.splice(source.index, 1);
+    let startItems = Array.from(start.items);
+    let orderedItem = { ...startItems[source.index] };
+    startItems.splice(source.index, 1);
 
-    let finishTasks = Array.from(finish.tasks);
-    finishTasks.splice(destination.index, 0, orderedTask);
+    let finishItems = Array.from(finish.items);
+    finishItems.splice(destination.index, 0, orderedItem);
 
-    const startColumnIndex = state.columns.findIndex(
+    const startsectionIndex = state.sections.findIndex(
       (item) => item.id === start.id
     );
-    const finishColumnIndex = state.columns.findIndex(
+    const finishsectionIndex = state.sections.findIndex(
       (item) => item.id === finish.id
     );
 
     setState((prev) => {
       let state = { ...prev };
-      prev.columns[startColumnIndex].tasks = startTasks;
-      prev.columns[finishColumnIndex].tasks = finishTasks;
+      prev.sections[startsectionIndex].items = startItems;
+      prev.sections[finishsectionIndex].items = finishItems;
       return state;
     });
   };
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="all-columns" type="column">
+      <Droppable droppableId="all-columns" type="section">
         {(provided) => (
           <div
             {...provided.droppableProps}
             ref={provided.innerRef}
             className={styles.mainContainer}
           >
-            {state.columns.map((column, index) => {
+            {state.sections.map((column, index) => {
               return (
                 <Column
                   key={column.id}
                   column={column}
-                  tasks={column.tasks}
+                  tasks={column.items}
                   index={index}
                 />
               );
