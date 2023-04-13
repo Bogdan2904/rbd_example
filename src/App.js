@@ -8,7 +8,7 @@ function App() {
   const [state, setState] = useState(initialData);
 
   const onDragEnd = (result) => {
-    const { destination, source, draggableId, type } = result;
+    const { destination, source, type } = result;
     if (!destination) return;
 
     if (
@@ -18,71 +18,69 @@ function App() {
       return;
 
     if (type === "column") {
-      const newColumnOrder = Array.from(state.columnOrder);
-      newColumnOrder.splice(source.index, 1);
-      newColumnOrder.splice(destination.index, 0, draggableId);
-
+      let newColumns = Array.from(state.columns);
+      let orderedColumn = { ...newColumns[source.index] };
+      newColumns.splice(source.index, 1);
+      newColumns.splice(destination.index, 0, orderedColumn);
       setState({
         ...state,
-        columnOrder: newColumnOrder,
+        columns: newColumns,
       });
       return;
     }
 
-    const start = state.columns[source.droppableId];
-    const finish = state.columns[destination.droppableId];
+    const start = state.columns.find((item) => item.id === source.droppableId);
+    const finish = state.columns.find(
+      (item) => item.id === destination.droppableId
+    );
 
     if (start === finish) {
-      const newTasksIds = Array.from(start.taskIds);
-      newTasksIds.splice(source.index, 1);
-      newTasksIds.splice(destination.index, 0, draggableId);
+      const newTasks = Array.from(start.tasks);
+      const orderedTask = { ...newTasks[source.index] };
+      newTasks.splice(source.index, 1);
+      newTasks.splice(destination.index, 0, orderedTask);
 
       const newColumn = {
         ...start,
-        taskIds: newTasksIds,
+        tasks: newTasks,
       };
 
-      const newState = {
+      const columnIndex = state.columns.findIndex(
+        (item) => item.id === start.id
+      );
+
+      let newColumns = [...state.columns];
+      newColumns[columnIndex] = newColumn;
+
+      setState({
         ...state,
-        columns: {
-          ...state.columns,
-          [newColumn.id]: newColumn,
-        },
-      };
+        columns: newColumns,
+      });
 
-      setState(newState);
       return;
     }
 
-    const startTaskIds = Array.from(start.taskIds);
-    startTaskIds.splice(source.index, 1);
+    let startTasks = Array.from(start.tasks);
+    let orderedTask = { ...startTasks[source.index] };
+    startTasks.splice(source.index, 1);
 
-    const newStart = {
-      ...start,
-      taskIds: startTaskIds,
-    };
+    let finishTasks = Array.from(finish.tasks);
+    finishTasks.splice(destination.index, 0, orderedTask);
 
-    const finishTaskIds = Array.from(finish.taskIds);
-    finishTaskIds.splice(destination.index, 0, draggableId);
+    const startColumnIndex = state.columns.findIndex(
+      (item) => item.id === start.id
+    );
+    const finishColumnIndex = state.columns.findIndex(
+      (item) => item.id === finish.id
+    );
 
-    const newFinish = {
-      ...finish,
-      taskIds: finishTaskIds,
-    };
-
-    const newState = {
-      ...state,
-      columns: {
-        ...state.columns,
-        [newStart.id]: newStart,
-        [newFinish.id]: newFinish,
-      },
-    };
-
-    setState(newState);
+    setState((prev) => {
+      let state = { ...prev };
+      prev.columns[startColumnIndex].tasks = startTasks;
+      prev.columns[finishColumnIndex].tasks = finishTasks;
+      return state;
+    });
   };
-
-  console.log("state", state);
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
@@ -93,15 +91,12 @@ function App() {
             ref={provided.innerRef}
             className={styles.mainContainer}
           >
-            {state.columnOrder.map((columnId, index) => {
-              const column = state.columns[columnId];
-              const tasks = column.taskIds.map((taskId) => state.tasks[taskId]);
-
+            {state.columns.map((column, index) => {
               return (
                 <Column
                   key={column.id}
                   column={column}
-                  tasks={tasks}
+                  tasks={column.tasks}
                   index={index}
                 />
               );
