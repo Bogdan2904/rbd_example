@@ -34,6 +34,7 @@ function App() {
       (item) => item.id === destination.droppableId
     );
 
+    //test
     if (start === finish) {
       const newItems = Array.from(start.items);
       const orderedItem = { ...newItems[source.index] };
